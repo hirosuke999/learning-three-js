@@ -8,9 +8,10 @@
 <script>
 import * as THREE from 'three'
 import Stats from 'stats.js'
+import { GUI } from 'dat.gui'
 
 export default {
-  name: 'MaterialLightAnimation',
+  name: 'ControlGUI',
   data() {
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(
@@ -85,8 +86,17 @@ export default {
       cube,
       sphere,
       sphereStep: 0,
-      stats
+      stats,
+      controls: new function() {
+        this.rotationSpeed = 0.02
+        this.bouncingSpeed = 0.03
+      }()
     }
+  },
+  created() {
+    const gui = new GUI()
+    gui.add(this.controls, 'rotationSpeed', 0, 0.5)
+    gui.add(this.controls, 'bouncingSpeed', 0, 0.5)
   },
   mounted() {
     this.$refs.statsOutput.appendChild(this.stats.domElement)
@@ -97,15 +107,15 @@ export default {
     renderScene() {
       this.stats.update()
 
-      this.cube.rotation.x += 0.02
-      this.cube.rotation.y += 0.02
-      this.cube.rotation.z += 0.02
+      this.cube.rotation.x += this.controls.rotationSpeed
+      this.cube.rotation.y += this.controls.rotationSpeed
+      this.cube.rotation.z += this.controls.rotationSpeed
 
-      this.sphereStep += 0.04
+      this.sphereStep += this.controls.bouncingSpeed
       this.sphere.position.x = 20 + 10 * Math.cos(this.sphereStep)
       this.sphere.position.y = 2 + 10 * Math.abs(Math.sin(this.sphereStep))
 
-      // requestAnimationFrame(this.renderScene)
+      requestAnimationFrame(this.renderScene)
       this.renderer.render(this.scene, this.camera)
     }
   }
